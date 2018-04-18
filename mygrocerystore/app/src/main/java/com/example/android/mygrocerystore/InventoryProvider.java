@@ -29,13 +29,15 @@ public class InventoryProvider extends ContentProvider {
         sUriMatcher.addURI(Inventorycontract.CONTENT_AUTHORITY, Inventorycontract.PATH_INVENTORY + "/#", Inventory_ID);
     }
 
-    /** Database helper object */
+    /**
+     * Database helper object
+     */
     private InventoryDbHelper mDbHelper;
 
     @Override
     public boolean onCreate() {
 
-        mDbHelper=new InventoryDbHelper(getContext());
+        mDbHelper = new InventoryDbHelper(getContext());
         return true;
     }
 
@@ -59,7 +61,7 @@ public class InventoryProvider extends ContentProvider {
             case Inventory_ID:
 
                 selection = Inventorycontract.newItem._ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
 
 
                 cursor = database.query(Inventorycontract.newItem.TABLE_NAME, projection, selection, selectionArgs,
@@ -98,13 +100,13 @@ public class InventoryProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case Inventory:
-                return insertPet(uri, contentValues);
+                return insertItem(uri, contentValues);
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
     }
 
-    private Uri insertPet(Uri uri, ContentValues values) {
+    private Uri insertItem(Uri uri, ContentValues values) {
         // Check that the name is not null
         String name = values.getAsString(Inventorycontract.newItem.COLUMN_ITEM_NAME);
         if (name == null) {
@@ -141,7 +143,7 @@ public class InventoryProvider extends ContentProvider {
             case Inventory_ID:
 
                 selection = Inventorycontract.newItem._ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(Inventorycontract.newItem.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
@@ -164,12 +166,13 @@ public class InventoryProvider extends ContentProvider {
             case Inventory_ID:
 
                 selection = Inventorycontract.newItem._ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updatePet(uri, contentValues, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
     }
+
     private int updatePet(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
         if (values.containsKey(Inventorycontract.newItem.COLUMN_ITEM_NAME)) {
