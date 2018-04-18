@@ -20,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -31,7 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Main2Activity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    private Uri mCurrentPetUri;
+    private Uri mCurrentUri;
 
     private EditText mNameEditText;
 
@@ -40,12 +41,15 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     private EditText mSuppliernameEditText;
 
     private EditText mSupplierinfoEditText;
-    int quantity;
+    private int quantity;
+
+    private EditText mquantity;
     private boolean mChanged = false;
-    private static final int PERMISSIONS_EXTERNAL_STORAGE = 1;
-    private static final int IMAGE_REQUEST = 0;
     private Button mbrowseimage;
     private ImageView image;
+    private static final int PERMISSIONS_EXTERNAL_STORAGE = 1;
+    private static final int IMAGE_REQUEST = 0;
+    Uri actualUri;
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -61,8 +65,8 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Intent intent = getIntent();
-        mCurrentPetUri = intent.getData();
-        if (mCurrentPetUri == null) {
+        mCurrentUri = intent.getData();
+        if (mCurrentUri == null) {
 
             setTitle("Add a item");
             invalidateOptionsMenu();
@@ -77,13 +81,14 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         mSupplierinfoEditText = findViewById(R.id.suppliers_add_info);
         mSuppliernameEditText = findViewById(R.id.supplier_name);
         mbrowseimage = findViewById(R.id.browser);
-        image = findViewById(R.id.image_view);
+        image = findViewById(R.id.image_view1);
         mbrowseimage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BrowseImage();
+                Image();
             }
         });
+        mquantity = findViewById(R.id.quantity);
     }
 
 
@@ -93,6 +98,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         int quantityString = quantity;
         String suppilernameString = mSuppliernameEditText.getText().toString().trim();
         String suppliersinfoString = mSupplierinfoEditText.getText().toString().trim();
+        String imagestring = String.valueOf(image.getTag());
 
         ContentValues values = new ContentValues();
         values.put(Inventorycontract.newItem.COLUMN_ITEM_NAME, nameString);
@@ -100,9 +106,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         values.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, quantityString);
         values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, suppilernameString);
         values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, suppliersinfoString);
-      //  values.put(Inventorycontract.newItem.COLUMN_IMAGE,imagestring);
+         values.put(Inventorycontract.newItem.COLUMN_IMAGE,imagestring);
 
-        if (mCurrentPetUri == null) {
+        if (mCurrentUri == null) {
 
             Uri newUri = getContentResolver().insert(Inventorycontract.newItem.CONTENT_URI, values);
 
@@ -118,7 +124,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             }
         } else {
 
-            int rowsAffected = getContentResolver().update(mCurrentPetUri, values, null, null);
+            int rowsAffected = getContentResolver().update(mCurrentUri, values, null, null);
 
             if (rowsAffected == 0) {
 
@@ -130,6 +136,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             }
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -141,9 +148,10 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.action_save:
+            case R.id.save:
                 savePet();
-                finish();                return true;
+                finish();
+                return true;
             case R.id.action_delete:
                 showDeleteConfirmationDialog();
                 DialogInterface.OnClickListener discardButtonClickListener =
@@ -158,9 +166,21 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
                 showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
+            case R.id.orderm:
+                String suppliersinfoString = mSupplierinfoEditText.getText().toString().trim();
+                Log.d("phone", suppliersinfoString);
+                dialPhoneNumber(suppliersinfoString);
+
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void dialPhoneNumber(String phoneNumber) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -171,8 +191,9 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
                 Inventorycontract.newItem.COLUMN_ITEM_PRICE,
                 Inventorycontract.newItem.COLUMN_ITEM_QUANTITY,
                 Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME,
-                Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO};
-               // Inventorycontract.newItem.COLUMN_IMAGE};
+                Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO,
+                Inventorycontract.newItem.COLUMN_IMAGE
+        };
 
         return new CursorLoader(this,
                 Inventorycontract.newItem.CONTENT_URI,
@@ -195,18 +216,22 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             int quantityColumnIndex = cursor.getColumnIndex(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY);
             int supplierNameColumnIndex = cursor.getColumnIndex(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME);
             int supplierInfoColumnIndex = cursor.getColumnIndex(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO);
+            int imageColumnIndex = cursor.getColumnIndex(Inventorycontract.newItem.COLUMN_IMAGE);
 
-           // Extract out the value from the Cursor for the given column index
+            // Extract out the value from the Cursor for the given column index
             String name = cursor.getString(nameColumnIndex);
-            String breed = cursor.getString(priceColumnIndex);
+            String price = cursor.getString(priceColumnIndex);
             String sname = cursor.getString(supplierNameColumnIndex);
             String sinfo = cursor.getString(supplierInfoColumnIndex);
-            int quantity = cursor.getInt(quantityColumnIndex);
+            String quantityc = cursor.getString(quantityColumnIndex);
+            String imagec = cursor.getString(imageColumnIndex);
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
-            mPriceEditText.setText(breed);
+            mPriceEditText.setText(price);
             mSuppliernameEditText.setText(sname);
             mSupplierinfoEditText.setText(sinfo);
+            mquantity.setText(quantityc);
+            image.setImageURI(Uri.parse(imagec));
         }
     }
 
@@ -215,10 +240,12 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
         mNameEditText.setText("");
         mPriceEditText.setText("");
-        quantity=0;
+        quantity = 0;
         mSuppliernameEditText.setText("");
         mSupplierinfoEditText.setText("");
+        mquantity.setText("");
     }
+
     private void showUnsavedChangesDialog(
             DialogInterface.OnClickListener discardButtonClickListener) {
 
@@ -278,7 +305,8 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         TextView quantityTextView = (TextView) findViewById(R.id.quantity);
         quantityTextView.setText("" + number);
     }
-    public void BrowseImage() {
+
+    public void Image() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -301,16 +329,15 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         intent.setType("image/*");
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST);
     }
-    //@Override
-/*    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+            case PERMISSIONS_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openImageSelector();
-                    // permission was granted
                 }
             }
         }
@@ -318,30 +345,23 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
-        // If the request code seen here doesn't match, it's the response to some other intent,
-        // and the below code shouldn't run at all.
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
+        if (requestCode == IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
 
             if (resultData != null) {
                 actualUri = resultData.getData();
-                imageView.setImageURI(actualUri);
-                imageView.invalidate();
+                image.setImageURI(actualUri);
+                image.invalidate();
             }
         }
-    }*/
-//}
+    }
     private void deleteitem() {
-        if (mCurrentPetUri != null) {
+        if (mCurrentUri != null) {
 
-            int rowsDeleted = getContentResolver().delete(mCurrentPetUri, null, null);
+            int rowsDeleted = getContentResolver().delete(mCurrentUri, null, null);
 
             if (rowsDeleted == 0) {
-                Toast.makeText(this,"Error while deleting the item",
+                Toast.makeText(this, "Error while deleting the item",
                         Toast.LENGTH_SHORT).show();
             } else {
 
