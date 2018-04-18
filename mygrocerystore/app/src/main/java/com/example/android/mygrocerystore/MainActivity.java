@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mCursorAdapter = new InventoryAdapter(this, null);
         inventoryListView.setAdapter(mCursorAdapter);
 
+
         // Setup the item click listener
         inventoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -62,15 +63,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getLoaderManager().initLoader(0, null, this);
     }
 
+
     private void insertdata() {
 
         ContentValues values = new ContentValues();
         values.put(Inventorycontract.newItem.COLUMN_ITEM_NAME, "MILK");
-        values.put(Inventorycontract.newItem.COLUMN_ITEM_PRICE, "20");
+        values.put(Inventorycontract.newItem.COLUMN_ITEM_PRICE,"Rs.20");
         values.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, "100");
         values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, "VERKA");
         values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, "0123456789");
-       // values.put(Inventorycontract.newItem.COLUMN_IMAGE,"com.example.android.mygrocerystore/drawable/milk.png");
+        values.put(Inventorycontract.newItem.COLUMN_IMAGE,"android.resource://com.example.android.mygrocerystore/drawable/milk");
         Uri newUri = getContentResolver().insert(Inventorycontract.newItem.CONTENT_URI, values);
 
 
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         juice.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, "50");
         juice.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, "Tropicana");
         juice.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, "0123456789");
-        //juice.put(Inventorycontract.newItem.COLUMN_IMAGE,"android.resource://com.example.android.mygroceystore/drawable/apple_juice");
+        juice.put(Inventorycontract.newItem.COLUMN_IMAGE,"android.resource://com.example.android.mygrocerystore/drawable/apple_juice");
         Uri juiceUri = getContentResolver().insert(Inventorycontract.newItem.CONTENT_URI, juice);
 
         ContentValues chips = new ContentValues();
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         chips.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, "100");
         chips.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, "Lays");
         chips.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, "0123456789");
-        //chips.put(Inventorycontract.newItem.COLUMN_IMAGE,"android.resource://com.example.android.mygroceystore/drawable/chips");
+        chips.put(Inventorycontract.newItem.COLUMN_IMAGE,"android.resource://com.example.android.mygrocerystore/drawable/chips");
         Uri chipsUri = getContentResolver().insert(Inventorycontract.newItem.CONTENT_URI, chips);
 
         ContentValues cookies = new ContentValues();
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         cookies.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, "100");
         cookies.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, "Britania cookies co.");
         cookies.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, "0123456789");
-        //cookies.put(Inventorycontract.newItem.COLUMN_IMAGE,"android.resource://com.example.android.mygroceystore/drawable/cookies");
+        cookies.put(Inventorycontract.newItem.COLUMN_IMAGE,"android.resource://com.example.android.mygrocerystore/drawable/cookies");
         Uri cookiesuri = getContentResolver().insert(Inventorycontract.newItem.CONTENT_URI, cookies);
     }
 
@@ -117,16 +119,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            // Respond to a click on the "Insert dummy data" menu option
             case R.id.dummy_data:
                 insertdata();
                 return true;
-            // Respond to a click on the "Delete all entries" menu option
             case R.id.del_all:
                 deleteAllitems();
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -139,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Inventorycontract.newItem.COLUMN_ITEM_PRICE,
                 Inventorycontract.newItem.COLUMN_ITEM_QUANTITY,
                 Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME,
-                Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO
-               // Inventorycontract.newItem.COLUMN_IMAGE
+                Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO,
+                Inventorycontract.newItem.COLUMN_IMAGE
         };
 
         return new CursorLoader(this,
