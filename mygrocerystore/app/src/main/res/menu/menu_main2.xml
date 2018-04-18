@@ -5,10 +5,13 @@
     tools:context="com.example.android.mygroceystore.Main2Activity">
 
     <item
-        android:id="@+id/action_save"
-        android:title="save"
-        android:icon="@drawable/save"
-        app:showAsAction="always" />
+        android:id="@+id/orderm"
+        android:title="Order More!"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/save"
+        android:title="Save"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_delete"
