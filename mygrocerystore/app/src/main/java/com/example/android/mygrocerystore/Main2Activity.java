@@ -41,7 +41,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     private EditText mSuppliernameEditText;
 
     private EditText mSupplierinfoEditText;
-    private int quantity;
+    public int quantity;
 
     private EditText mquantity;
     private boolean mChanged = false;
@@ -92,13 +92,13 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
     }
 
 
-    private void savePet() {
+    public void saveItem() {
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mPriceEditText.getText().toString().trim();
         int quantityString = quantity;
         String suppilernameString = mSuppliernameEditText.getText().toString().trim();
         String suppliersinfoString = mSupplierinfoEditText.getText().toString().trim();
-        String imagestring = String.valueOf(image.getTag());
+        String imagestring = actualUri.toString();
 
         ContentValues values = new ContentValues();
         values.put(Inventorycontract.newItem.COLUMN_ITEM_NAME, nameString);
@@ -106,7 +106,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         values.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, quantityString);
         values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, suppilernameString);
         values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, suppliersinfoString);
-         values.put(Inventorycontract.newItem.COLUMN_IMAGE,imagestring);
+        values.put(Inventorycontract.newItem.COLUMN_IMAGE, imagestring);
 
         if (mCurrentUri == null) {
 
@@ -149,7 +149,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
         switch (item.getItemId()) {
             case R.id.save:
-                savePet();
+                saveItem();
                 finish();
                 return true;
             case R.id.action_delete:
@@ -166,15 +166,16 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
 
                 showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
+
             case R.id.orderm:
                 String suppliersinfoString = mSupplierinfoEditText.getText().toString().trim();
-                Log.d("phone", suppliersinfoString);
                 dialPhoneNumber(suppliersinfoString);
 
         }
 
         return super.onOptionsItemSelected(item);
     }
+
     public void dialPhoneNumber(String phoneNumber) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
@@ -196,7 +197,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         };
 
         return new CursorLoader(this,
-                Inventorycontract.newItem.CONTENT_URI,
+                mCurrentUri,
                 projection,
                 null,
                 null,
@@ -355,6 +356,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
             }
         }
     }
+
     private void deleteitem() {
         if (mCurrentUri != null) {
 
