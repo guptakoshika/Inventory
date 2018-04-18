@@ -45,7 +45,7 @@ public class Inventorycontract {
 
         public final static String COLUMN_SUPPLIERS_INFO = "suppliers_info";
 
-       // public final static String COLUMN_IMAGE = "image";
+        public final static String COLUMN_IMAGE = "image";
 
     }
 }
