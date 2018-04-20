@@ -74,7 +74,7 @@ public class InventoryAdapter extends CursorAdapter {
              {
                  Quantity=0;
              }
-             QuantityTextView.setText(Quantity);
+             QuantityTextView.setText(Quantity+"");
         }
     }
 }
