@@ -1,4 +1,5 @@
 package com.example.android.mygrocerystore;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -30,6 +31,8 @@ public class InventoryAdapter extends CursorAdapter {
     public void bindView(View view, final Context context, Cursor cursor) {
         // Find individual views that we want to modify in the list item layout
         ViewHolder viewHolder = (ViewHolder) view.getTag();
+        int pos = cursor.getPosition();
+
 
         int nameColumnIndex = cursor.getColumnIndex(Inventorycontract.newItem.COLUMN_ITEM_NAME);
         int priceColumnIndex = cursor.getColumnIndex(Inventorycontract.newItem.COLUMN_ITEM_PRICE);
@@ -48,6 +51,7 @@ public class InventoryAdapter extends CursorAdapter {
         viewHolder.summaryTextView.setText(itemPrice);
         viewHolder.QuantityTextView.setText(itemQuantity);
         viewHolder.image.setImageURI(Uri.parse(imageView));
+
     }
 
     static class ViewHolder implements View.OnClickListener{
@@ -57,6 +61,7 @@ public class InventoryAdapter extends CursorAdapter {
         ImageView image,orderImage;
         Context context;
         String quantity1;
+        Uri muri;
         ViewHolder(View view,Context c){
             nameTextView = view.findViewById(R.id.name_textview);
             summaryTextView =  view.findViewById(R.id.price_textview);
@@ -74,7 +79,11 @@ public class InventoryAdapter extends CursorAdapter {
              {
                  Quantity=0;
              }
-             QuantityTextView.setText(Quantity+"");
+             String quantitystring = Integer.toString(Quantity);
+             QuantityTextView.setText(quantitystring);
+            ContentValues updates = new ContentValues();
+            updates.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY,quantitystring);
+            Uri updatedUri = context.getContentResolver().update(muri,updates,null,pos);
         }
     }
 }
