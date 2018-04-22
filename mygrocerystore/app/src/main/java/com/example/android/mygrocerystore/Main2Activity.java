@@ -20,7 +20,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -31,7 +30,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Main2Activity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class DetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private Uri mCurrentUri;
 
     private EditText mNameEditText;
@@ -73,7 +72,7 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         } else {
 
             setTitle("Edit a Item");
-
+            invalidateOptionsMenu();
             getLoaderManager().initLoader(0, null, this);
         }
         mNameEditText = findViewById(R.id.item_name);
@@ -90,50 +89,82 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         });
         mquantity = findViewById(R.id.quantity);
     }
-
+    private boolean setValue(EditText text) {
+        if (TextUtils.isEmpty(text.getText())) {
+            text.setError("product is missing!! recheck it!");
+            Toast.makeText(this, "All fields are mandatory", Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+            text.setError(null);
+            return true;
+        }
+    }
 
     public void saveItem() {
-        String nameString = mNameEditText.getText().toString().trim();
-        String breedString = mPriceEditText.getText().toString().trim();
-        int quantityString = quantity;
-        String suppilernameString = mSuppliernameEditText.getText().toString().trim();
-        String suppliersinfoString = mSupplierinfoEditText.getText().toString().trim();
-        String imagestring = actualUri.toString();
-
-        ContentValues values = new ContentValues();
-        values.put(Inventorycontract.newItem.COLUMN_ITEM_NAME, nameString);
-        values.put(Inventorycontract.newItem.COLUMN_ITEM_PRICE, breedString);
-        values.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, quantityString);
-        values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, suppilernameString);
-        values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, suppliersinfoString);
-        values.put(Inventorycontract.newItem.COLUMN_IMAGE, imagestring);
-
-        if (mCurrentUri == null) {
-
-            Uri newUri = getContentResolver().insert(Inventorycontract.newItem.CONTENT_URI, values);
-
-            // Show a toast message depending on whether or not the insertion was successful.
-            if (newUri == null) {
-                // If the new content URI is null, then there was an error with insertion.
-                Toast.makeText(this, "Item editing Failed!",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the insertion was successful and we can display a toast.
-                Toast.makeText(this, "Item Edited successfully",
-                        Toast.LENGTH_SHORT).show();
-            }
+        boolean check = true;
+        if (!setValue(mNameEditText )) {
+            check = false;
+        }
+        if (!setValue(mPriceEditText)) {
+            check = false;
+        }
+        if (!setValue(mquantity)) {
+            check = false;
+        }
+        if (!setValue(mSuppliernameEditText)) {
+            check = false;
+        }
+        if (!setValue(mSupplierinfoEditText)) {
+            check = false;
+        }
+        if (actualUri == null) {
+            check = false;
+            Toast.makeText(this, "All fields are mandatory", Toast.LENGTH_SHORT).show();
         } else {
+            String nameString = mNameEditText.getText().toString().trim();
+            String breedString = mPriceEditText.getText().toString().trim();
+            int quantityString = quantity;
+            String suppilernameString = mSuppliernameEditText.getText().toString().trim();
+            String suppliersinfoString = mSupplierinfoEditText.getText().toString().trim();
+            String imagestring = actualUri.toString();
 
-            int rowsAffected = getContentResolver().update(mCurrentUri, values, null, null);
+            ContentValues values = new ContentValues();
+            values.put(Inventorycontract.newItem.COLUMN_ITEM_NAME, nameString);
+            values.put(Inventorycontract.newItem.COLUMN_ITEM_PRICE, breedString);
+            values.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY, quantityString);
+            values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_NAME, suppilernameString);
+            values.put(Inventorycontract.newItem.COLUMN_SUPPLIERS_INFO, suppliersinfoString);
+            values.put(Inventorycontract.newItem.COLUMN_IMAGE, imagestring);
 
-            if (rowsAffected == 0) {
+            if (mCurrentUri == null) {
 
-                Toast.makeText(this, "Item update failed!",
-                        Toast.LENGTH_SHORT).show();
+                Uri newUri = getContentResolver().insert(Inventorycontract.newItem.CONTENT_URI, values);
+
+                // Show a toast message depending on whether or not the insertion was successful.
+                if (newUri == null) {
+                    // If the new content URI is null, then there was an error with insertion.
+                    Toast.makeText(this, "Item editing Failed!",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    // Otherwise, the insertion was successful and we can display a toast.
+                    Toast.makeText(this, "Item Edited successfully",
+                            Toast.LENGTH_SHORT).show();
+                }
             } else {
-                Toast.makeText(this, "Item Updated Successfully",
-                        Toast.LENGTH_SHORT).show();
+
+                int rowsAffected = getContentResolver().update(mCurrentUri, values, null, null);
+
+                if (rowsAffected == 0) {
+
+                    Toast.makeText(this, "Item update failed!",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Item Updated Successfully",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
+
+            finish();
         }
     }
 
@@ -150,27 +181,14 @@ public class Main2Activity extends AppCompatActivity implements LoaderManager.Lo
         switch (item.getItemId()) {
             case R.id.save:
                 saveItem();
-                finish();
                 return true;
             case R.id.action_delete:
                 showDeleteConfirmationDialog();
-                DialogInterface.OnClickListener discardButtonClickListener =
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // User clicked "Discard" button, navigate to parent activity.
-                                NavUtils.navigateUpFromSameTask(Main2Activity.this);
-                            }
-                        };
-
-
-                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
 
             case R.id.orderm:
                 String suppliersinfoString = mSupplierinfoEditText.getText().toString().trim();
                 dialPhoneNumber(suppliersinfoString);
-
         }
 
         return super.onOptionsItemSelected(item);
