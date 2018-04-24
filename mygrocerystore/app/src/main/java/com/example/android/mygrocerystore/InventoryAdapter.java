@@ -82,8 +82,10 @@ public class InventoryAdapter extends CursorAdapter {
              String quantitystring = Integer.toString(Quantity);
              QuantityTextView.setText(quantitystring);
             ContentValues updates = new ContentValues();
-            updates.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY,quantitystring);
-            Uri updatedUri = context.getContentResolver().update(muri,updates,null,pos);
+           updates.put(Inventorycontract.newItem.COLUMN_ITEM_QUANTITY,quantitystring);
+           String where=Inventorycontract.newItem._ID+"=?";
+
+           context.getContentResolver().update(Inventorycontract.newItem.CONTENT_URI,updates,where,new String[]{String.valueOf(Quantity)});
         }
     }
 }
